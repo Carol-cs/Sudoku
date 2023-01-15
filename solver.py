@@ -2,12 +2,10 @@
 Sudoku Solver
 """
 
-
 def print_board(b):
     """
     print board in good format in the console
     :param b: board
-    :return:
     """
     for i in range(len(b)):
         if i % 3 == 0 and i != 0:
@@ -79,9 +77,9 @@ def solve(b):
     Note: this function will modify the board
     :param b: board
     :return: IF the board is solvable:
-                return true
+                return True
             ELSE:
-                return false
+                return False
     """
     find = find_empty(b)
     if not find:  # base case: board is solved (no empty square is found)
@@ -96,3 +94,4 @@ def solve(b):
             b[find[0]][find[1]] = 0  # reset to 0 if this approach cannot solve the board
 
     return False
+
