@@ -5,7 +5,7 @@ Sudoku Generator
 import random
 import copy
 
-from solver import solve
+from solver import solve, is_valid
 
 # generate a list containing 1-9
 arr = []
@@ -55,12 +55,9 @@ def clear_square(b, num):
         row = random.randrange(0, 9)
         col = random.randrange(0, 9)
         if b[row][col] != 0:
-            backup = copy.deepcopy(b)
-            b[row][col] = 0
-            if solve(b):  # make sure that the board remains solvable when a square is cleared.
-                backup[row][col] = 0
+            if check_unique_sol(b, row, col):
+                b[row][col] = 0
                 num -= 1
-            b = copy.deepcopy(backup)
     return b
 
 
@@ -82,3 +79,25 @@ def generator(level):
         level_num = random.randrange(54, 61)
 
     return clear_square(game_board, level_num)
+
+
+def check_unique_sol(b, row, col):
+    """
+    check if the board has a unique solution after clearing the square value at position [row, col].
+    :param b: board
+    :param row: row of square
+    :param col: column of square
+    :return: IF the board has a unique solution:
+                RETURN TRUE
+             ELSE:
+                FALSE
+    """
+    for i in range(1, 10):
+        temp = copy.deepcopy(b)
+        if temp[row][col] != i:
+            temp[row][col] = 0
+            if is_valid(b, i, [row, col]):
+                temp[row][col] = i
+                if solve(temp):
+                    return False
+    return True
