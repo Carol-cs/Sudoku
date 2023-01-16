@@ -644,7 +644,7 @@ class GameBoard:
                     return "Incomplete"
         for i in range(len(self.squares)):
             for j in range(len(self.squares[0])):
-                if is_valid(updated_board, self.squares[i][j].value, [i, j]):
+                if self.squares[i][j].value == self.solved_board[i][j]:
                     continue
                 else:
                     incorrect_squares.append(self.squares[i][j])
