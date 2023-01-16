@@ -71,12 +71,12 @@ def generator(level):
     game_board = [[0 for _ in range(9)] for _ in range(9)]  # create an empty board
     fill_correct_diagonal(game_board)  # create a randomly generated and completed board
     level_num = 0
-    if level == "Easy":  # easy 40-46 blank
-        level_num = random.randrange(40, 47)
-    elif level == "Medium":  # medium 47-53 blank
-        level_num = random.randrange(47, 54)
-    elif level == "Hard":  # hard 54-60 blank
-        level_num = random.randrange(54, 61)
+    if level == "Easy":  # easy 35-41 blank
+        level_num = random.randrange(35, 42)
+    elif level == "Medium":  # medium 42-48 blank
+        level_num = random.randrange(42, 49)
+    elif level == "Hard":  # hard 49-55 blank
+        level_num = random.randrange(49, 56)
 
     return clear_square(game_board, level_num)
 

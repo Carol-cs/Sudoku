@@ -164,17 +164,15 @@ class MainGame:
         # will be cleared when click "Visual" or "Answer"
         # will restart when click "Reset" or "New Board"
 
-        self.click_answer = False  # used to disallow to check after "Answer" until clicking "Reset" or "New Board"
+        self.click_answer = False  # used to disallow to check after "Answer" until clicking "New Board"
         self.current_time = 0
 
         # buttons
         self.button_erase = MainGameButtons("Erase", "verdana", 15, BLACK, [100, 30], BLUE, 2,
                                             [25, SCREEN_WIDTH + 65])
         self.button_note = None
-        self.button_check = MainGameButtons("Check", "verdana", 15, BLACK, [100, 30], RED, 2,
-                                            [25, SCREEN_WIDTH + 110])
-        self.button_reset = MainGameButtons("Reset", "verdana", 15, BLACK, [100, 30], PURPLE, 2,
-                                            [25, SCREEN_WIDTH + 155])
+        self.button_check = None
+        self.button_reset = None
         self.button_new = MainGameButtons("New Board", "verdana", 15, BLACK, [100, 30], PURPLE, 2,
                                           [25 + 115, SCREEN_WIDTH + 155])
         self.button_visual = MainGameButtons("Visual", "verdana", 15, BLACK, [100, 30], PURPLE, 2,
@@ -190,10 +188,9 @@ class MainGame:
 
         while True:
             Game.window.fill(WHITE)
-
+            self.get_event()
             self.display_top_text()
             self.game_board_gui.display()
-            self.get_event()
             self.display_all_buttons_text()
             pygame.display.update()  # Make the window updated
 
@@ -202,7 +199,8 @@ class MainGame:
         for event in event_list:
             if event.type == pygame.QUIT:
                 exit()
-            if event.type == pygame.KEYDOWN and not self.visualizing and self.check_status != "Correct":
+            if event.type == pygame.KEYDOWN and not self.visualizing and not self.click_answer \
+                    and self.check_status != "Correct":
                 if event.key == pygame.K_1:
                     MainGame.key = 1
                 if event.key == pygame.K_2:
@@ -222,7 +220,7 @@ class MainGame:
                 if event.key == pygame.K_9:
                     MainGame.key = 9
             if event.type == pygame.MOUSEBUTTONDOWN:
-                if not self.visualizing and self.check_status != "Correct":
+                if not self.visualizing and not self.click_answer and self.check_status != "Correct":
                     pos = pygame.mouse.get_pos()
                     clicked_square = self.game_board_gui.pos_to_row_col(pos)
                     if clicked_square:
@@ -235,22 +233,28 @@ class MainGame:
                         self.game_board_gui.place_number(0)
                         self.game_board_gui.clear_note()
 
-                elif self.button_note.detect_mouse_hover():
+                if self.button_note.detect_mouse_hover():
                     self.note_mode = not self.note_mode
-                elif self.button_check.detect_mouse_hover() and not self.visualizing and not self.click_answer:
+                if self.button_check.detect_mouse_hover() and not self.visualizing and not self.click_answer:
                     self.check_status = self.game_board_gui.check()
                     if self.check_status == "Correct":
                         self.timing = False
 
-                elif self.button_reset.detect_mouse_hover():
+                        if self.game_board_gui.selected:
+                            # unselect Square
+                            row = self.game_board_gui.selected[0]
+                            col = self.game_board_gui.selected[1]
+                            self.game_board_gui.squares[row][col].selected = False
+                            self.game_board_gui.selected = None
+
+                if self.button_reset.detect_mouse_hover() and not self.visualizing and not self.click_answer \
+                        and self.check_status != "Correct":
                     self.game_board_gui = GameBoard(self.game_board_gui.original_board, SCREEN_WIDTH)
                     self.check_status = ""
-                    self.click_answer = False
-                    self.visualizing = False
                     self.timing = True
                     self.start_time = time.time()
 
-                elif self.button_new.detect_mouse_hover():
+                if self.button_new.detect_mouse_hover():
                     self.game_board_gui = GameBoard(generator(self.level), SCREEN_WIDTH)
                     self.check_status = ""
                     self.click_answer = False
@@ -258,7 +262,7 @@ class MainGame:
                     self.timing = True
                     self.start_time = time.time()
 
-                elif self.button_visual.detect_mouse_hover():
+                if self.button_visual.detect_mouse_hover():
                     self.visualizing = True
                     self.timing = False
                     self.game_board_gui = GameBoard(self.game_board_gui.original_board, SCREEN_WIDTH)
@@ -266,15 +270,15 @@ class MainGame:
                     self.start_time = time.time()
                     self.visual_solve()
 
-                elif self.button_answer.detect_mouse_hover():
+                if self.button_answer.detect_mouse_hover():
                     self.click_answer = True
                     self.game_board_gui.squares = self.game_board_gui.init_squares(self.game_board_gui.solved_board)
                     self.game_board_gui.selected = None
                     self.timing = False
-                elif self.button_return.detect_mouse_hover():
+                if self.button_return.detect_mouse_hover():
                     Menu().create_menu()
                     self.timing = False
-                elif self.button_exit.detect_mouse_hover():
+                if self.button_exit.detect_mouse_hover():
                     self.timing = False
                     exit()
 
@@ -313,6 +317,17 @@ class MainGame:
             self.button_note = MainGameButtons("Note", "verdana", 15, BLACK, [100, 30], BLUE, 2,
                                                [25 + 115 * 3, SCREEN_WIDTH + 65])
         self.button_note.button_text()
+
+        if self.visualizing or self.click_answer or self.check_status == "Correct":
+            self.button_check = MainGameButtons("Check", "verdana", 15, WHITE, [100, 30], GREY, 0,
+                                                [25, SCREEN_WIDTH + 110])
+            self.button_reset = MainGameButtons("Reset", "verdana", 15, WHITE, [100, 30], GREY, 0,
+                                                [25, SCREEN_WIDTH + 155])
+        else:
+            self.button_check = MainGameButtons("Check", "verdana", 15, BLACK, [100, 30], RED, 2,
+                                                [25, SCREEN_WIDTH + 110])
+            self.button_reset = MainGameButtons("Reset", "verdana", 15, BLACK, [100, 30], PURPLE, 2,
+                                                [25, SCREEN_WIDTH + 155])
         self.button_check.button_text()
         self.button_reset.button_text()
         self.button_new.button_text()
@@ -417,7 +432,6 @@ class MainGame:
             return True
 
         for i in range(1, 10):
-
             if self.visualizing:
                 find.value = i
                 find.visual_color = RED
@@ -458,10 +472,10 @@ class MainGame:
         update the game interface when visualizing the solution
         """
         Game.window.fill(WHITE)
+        self.get_event()
         self.display_top_text()
         self.display_all_buttons_text()
         self.game_board_gui.display()
-        self.get_event()
         pygame.display.update()
 
 
@@ -634,9 +648,8 @@ class GameBoard:
                 IF the completed board is correct
                     return "Correct"
                 IF the completed board is wrong
-                    return "Wrong
+                    return "Wrong"
         """
-        updated_board = self.updated_board_array()
         incorrect_squares = []
         for i in range(len(self.squares)):
             for j in range(len(self.squares[0])):
@@ -649,15 +662,15 @@ class GameBoard:
                 else:
                     incorrect_squares.append(self.squares[i][j])
 
+        self.color_square(incorrect_squares)
         if len(incorrect_squares) == 0:
             return "Correct"
         else:
-            self.label_wrong_square(incorrect_squares)
             return "Wrong"
 
-    def label_wrong_square(self, incorrect_squares):
+    def color_square(self, incorrect_squares):
         """
-        mark invalid Squares
+        update Square color, mark invalid Squares
         :param incorrect_squares: an array of invalid squares
         """
         for i in range(len(self.squares)):
