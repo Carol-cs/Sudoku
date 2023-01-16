@@ -26,6 +26,7 @@ class Game:
 
     # initialize game record at the start of each game (when a new game window is opened)
     record = {'Easy': "N/A", 'Medium': "N/A", 'Hard': "N/A"}
+    icon_img = pygame.image.load("imgs/sudoku.png")
 
     def __init__(self):
         pass
@@ -34,6 +35,7 @@ class Game:
         pygame.display.init()
         Game.window = pygame.display.set_mode([SCREEN_WIDTH, SCREEN_HEIGHT])
         pygame.display.set_caption("Sudoku")
+        pygame.display.set_icon(Game.icon_img)
 
 
 class Menu:
@@ -41,7 +43,6 @@ class Menu:
     Class used to create a menu
     """
 
-    icon_img = pygame.image.load("imgs/sudoku.png")
 
     def __init__(self):
         self.button_easy = MenuButtons("Easy", 25, BLACK, BLACK, 3, 260)
@@ -59,8 +60,8 @@ class Menu:
 
         while True:
             Game.window.fill(WHITE)
-            icon_img_width = Menu.icon_img.get_width()
-            Game.window.blit(Menu.icon_img, (SCREEN_WIDTH / 2 - icon_img_width / 2, 120))
+            icon_img_width = Game.icon_img.get_width()
+            Game.window.blit(Game.icon_img, (SCREEN_WIDTH / 2 - icon_img_width / 2, 120))
 
             self.check_button_hover()
             self.get_event()
